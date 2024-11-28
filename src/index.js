@@ -1,52 +1,86 @@
-import { app, BrowserWindow } from 'electron';
-import path from 'node:path';
-import started from 'electron-squirrel-startup';
+const { app, BrowserWindow, Tray, Menu, ipcMain } = require('electron');
+const path = require('path');
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (started) {
-  app.quit();
-}
+let tray = null;
+let mainWindow = null;
+let alertWindow = null;
+let alertTimeout = null;
 
-const createWindow = () => {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 500,
+    height: 400,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true,
+      contextIsolation: false, // Added for ipc communication
     },
   });
+  mainWindow.loadFile('src/index.html');
 
-  // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  // Remove the default menu bar
+  mainWindow.setMenuBarVisibility(false);
+}
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
-};
+function createAlertWindow() {
+  alertWindow = new BrowserWindow({
+    width: 320,
+    height: 220,
+    frame: false,
+    alwaysOnTop: true,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false, // Added for ipc communication
+    },
+  });
+  alertWindow.loadFile('src/alert.html');
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
-  createWindow();
+  const closeAlertTimeout = setTimeout(() => {
+    if (alertWindow && !alertWindow.isDestroyed()) {
+      alertWindow.close();
+      alertWindow = null;
+    }
+  }, 20000); // 20 seconds
 
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+  alertWindow.on('closed', () => {
+    clearTimeout(closeAlertTimeout);
+    alertWindow = null;
+    startAlertInterval();
+
+    // Send message to mainWindow to reset the timer
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('reset-timer');
     }
   });
+}
+
+function startAlertInterval() {
+  alertTimeout = setTimeout(() => {
+    if (!alertWindow) {
+      createAlertWindow();
+    }
+  }, 20 * 60 * 1000); // 20 minutes in milliseconds
+}
+
+ app.on('ready', () => {
+  createWindow();
+  tray = new Tray(path.join(__dirname, 'icon.png'));
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Quit', click: () => { app.quit(); } },
+  ]);
+  tray.setToolTip('EyeEase');
+  tray.setContextMenu(contextMenu);
+
+  startAlertInterval();
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});

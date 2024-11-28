@@ -1,12 +1,72 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Hello World!</title>
-    <link rel="stylesheet" href="index.css" />
-  </head>
-  <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pupillo - Take a Break for Your Eyes</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="app-container">
+    <h2>Welcome to Pupillo! 🌟</h2>
+    <div class="description">
+      <p>Your personal assistant for maintaining healthy eyes. Every 20 minutes, we'll remind you to take a 20-second break.</p>
+      <p>Take a 20-second break after:</p>
+    </div>
+    <div class="timer-container">
+      <div id="timer">20:00</div>
+      <button id="resetButton">Reset Timer</button>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    let timerElement = document.getElementById('timer');
+    let resetButton = document.getElementById('resetButton');
+    let timeLeft = 1200; // 20 minutes in seconds
+    let countdown;
+
+    function formatTime(seconds) {
+      let minutes = Math.floor(seconds / 60);
+      let remainingSeconds = seconds % 60;
+      return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+      countdown = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = formatTime(timeLeft);
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          notifyUser();
+          timeLeft = 1200; // Reset to 20 minutes after break reminder
+        }
+      }, 1000);
+    }
+
+    function notifyUser() {
+      // Show browser notification for break reminder
+      new Notification("Time for a Break!", {
+        body: "Take a 20-second break to rest your eyes!",
+        icon: 'https://example.com/break-icon.png' // Optional: Add a custom icon for the notification
+      });
+    }
+
+    // Reset timer functionality
+    resetButton.addEventListener('click', () => {
+      timeLeft = 1200;
+      timerElement.textContent = formatTime(timeLeft);
+      if (countdown) clearInterval(countdown);
+      startTimer();
+    });
+
+    // Check if notifications are supported and request permission
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
+    // Start the timer when the app loads
+    startTimer();
+  </script>
+</body>
 </html>

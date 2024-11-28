@@ -1,7 +1,119 @@
+/* Universal Styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  border: none;
+  outline: none;
+  scroll-behavior: smooth;
+  font-family: 'Poppins', sans-serif;
+}
+
+:root {
+   --bg-color: #1f242d;
+   --second-bg-color: #323946;
+   --text-color: #fff;
+   --main-color: #0ef;
+   --accent-color: #ff6347; /* Button accent color */
+   --shadow-color: rgba(0, 255, 255, 0.3); /* Subtle shadow color */
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
+  background: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  padding: 0 10px; /* Adds margin between the content and viewport edges */
+}
+
+/* Container Styling */
+.container {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  background: var(--bg-color);
   padding: 2rem;
+  border-radius: 1rem;
+  margin: 2.5rem;
+  box-shadow: 0 0 1rem var(--main-color); /* Glowing shadow for the container */
+  max-width: 500px;
+  width: 100%;
+  transition: all 0.3s ease-in-out; /* Smooth transition for resizing */
+  padding: 2rem; /* Padding inside the container */
+  margin: 1rem; /* Margin outside the container */
+}
+
+/* Heading Styling */
+h2 {
+  font-size: 2.5rem;
+  margin: 1.5rem 0;
+  text-align: center;
+  color: var(--main-color);
+  text-shadow: 2px 2px 5px var(--accent-color); /* Subtle glow effect */
+}
+
+/* Paragraph Styling */
+p {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Timer Styling */
+#timer {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  font-family: 'Courier New'; /* Digital clock font */
+  color: var(--main-color);
+  text-shadow: 1px 1px 3px var(--accent-color); /* Glow effect for the timer */
+  transition: color 0.3s ease; /* Smooth color change */
+}
+
+/* Button Styling */
+button {
+  padding: 10px 20px;
+  background-color: var(--accent-color);
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  margin-top: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #ff4500;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+}
+
+button:active {
+  transform: scale(0.98); /* Slight scaling effect on button press */
+}
+
+/* Media Queries for Mobile Responsiveness */
+@media (max-width: 768px) {
+  h2 {
+      font-size: 2rem;
+  }
+
+  p {
+      font-size: 1rem; /* Reduced size for mobile */
+  }
+
+  #timer {
+      font-size: 2.5rem; /* Adjusted timer size for smaller screens */
+  }
+
+  .container {
+      padding: 1.5rem;
+      margin: 1rem;
+  }
 }
